@@ -127,6 +127,17 @@ export class ProductController {
       );
     }
 
+    if (request.query.sort === 'asc' || request.query.sort === 'desc') {
+      products.sort((a, b) => {
+        // -1, 0, 1
+        const diff = a.price - b.price;
+        if (diff === 0) return 0;
+
+        const sign = Math.abs(diff) / diff; // -1, 1
+        return request.query.sort === 'asc' ? sign : -sign;
+      });
+    }
+
     return products;
   }
 }
