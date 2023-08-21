@@ -21,12 +21,14 @@ import {
   CacheTTL,
 } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller()
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -41,7 +43,9 @@ export class ProductController {
     @Body()
     body: ProductCreateDto,
   ) {
-    this.productService.save(body);
+    const product = await this.productService.save(body);
+    this.eventEmitter.emit('product_updated');
+    return product;
   }
 
   @UseGuards(AuthGuard)
@@ -72,6 +76,8 @@ export class ProductController {
     }
 
     await this.productService.update(id, body);
+    this.eventEmitter.emit('product_updated');
+
     return await this.productService.findOne({ where: { id } });
   }
 
@@ -85,7 +91,9 @@ export class ProductController {
     if (!product) {
       throw new NotFoundException('Product not found!');
     }
-    return await this.productService.delete(id);
+    const response = await this.productService.delete(id);
+    this.eventEmitter.emit('product_updated');
+    return response;
   }
 
   @CacheKey('products_frontend')
