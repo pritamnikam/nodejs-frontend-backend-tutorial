@@ -23,14 +23,14 @@ export class User {
   @Column({ default: true })
   is_ambassador: boolean;
 
-  @OneToMany(() => Order, order => order.user, {
-    createForeignKeyConstraints: false
+  @OneToMany(() => Order, (order) => order.user, {
+    createForeignKeyConstraints: false,
   })
   orders: Order[];
 
   get revenue(): number {
     return this.orders
-    .filter(order => order.complete)
-    .reduce((sum, order) => sum + order.ambassador_revenue, 0);
+      .filter((order) => order.complete)
+      .reduce((sum, order) => sum + order.ambassador_revenue, 0);
   }
 }

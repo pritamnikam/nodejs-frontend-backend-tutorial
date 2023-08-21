@@ -70,7 +70,7 @@ export class Order {
     createForeignKeyConstraints: false,
   })
   user: User;
-  
+
   @Expose()
   get name() {
     return `${this.first_name} ${this.last_name}`;
@@ -83,6 +83,9 @@ export class Order {
 
   @Expose()
   get ambassador_revenue(): number {
-    return this.order_items.reduce((sum, item) => sum + item.ambassador_revenue, 0);
+    return this.order_items.reduce(
+      (sum, item) => sum + item.ambassador_revenue,
+      0,
+    );
   }
 }
