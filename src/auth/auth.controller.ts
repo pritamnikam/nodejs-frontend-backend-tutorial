@@ -74,7 +74,7 @@ export class AuthController {
       throw new BadRequestException('Invalid credentials!');
     }
 
-    const adminLogin = request.path == '/api/admin/login';
+    const adminLogin = request.path === '/api/admin/login';
     if (user.is_ambassador && adminLogin) {
       throw new UnauthorizedException();
     }
@@ -99,8 +99,24 @@ export class AuthController {
   ) {
     const cookie = request.cookies['jwt'];
     const { id } = await this.jwtService.verifyAsync(cookie);
-    const user = await this.userService.findOne({ where: { id } });
-    return user;
+    if (request.path === '/api/admin/user') {
+      return this.userService.findOne({ where: { id } });
+    }
+
+    const user = await this.userService.findOne({
+      where: { 
+        id
+      },
+      relations: ['orders', 'orders.order_items'],
+    });
+
+
+    const {orders, password, ...data} = user;
+
+    return {
+      ...data, 
+      revenue: user.revenue 
+    };
   }
 
   @UseGuards(AuthGuard)
