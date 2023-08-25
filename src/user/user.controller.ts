@@ -1,4 +1,11 @@
-import { Controller, Get, Res, UseGuards } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Res,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { User } from './user';
@@ -7,10 +14,11 @@ import { Response } from 'express';
 
 @UseGuards(AuthGuard)
 @Controller()
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
   ) {}
 
   @Get('admin/ambassadors')
@@ -23,20 +31,25 @@ export class UserController {
   @Get('ambassador/rankings')
   async rankings(
     @Res()
-    response: Response
+    response: Response,
   ) {
-    // const ambassadors: User[] = await this.userService.find({
-    //   is_ambassador: true,
-    //   relations: ['orders', 'orders.order_items'],
-    // });
+    const ambassadors: User[] = await this.userService.find({
+      is_ambassador: true,
+      relations: ['orders', 'orders.order_items'],
+    });
 
-    // return ambassadors.map((ambassador) => {
-    //   return {
-    //     name: ambassador.name,
-    //     revenue: ambassador.revenue,
-    //   };
-    // });
+    return ambassadors.map((ambassador) => {
+      return {
+        name: ambassador.name,
+        revenue: ambassador.revenue,
+      };
+    });
 
+    // return rankingsHelper(response);
+  }
+
+  // Error: #getClient not a function
+  async rankingsHelper(response: Response) {
     const client = this.redisService.getClient();
     client.zrevrangebyscore(
       'rankings',
@@ -53,14 +66,15 @@ export class UserController {
             if (isNaN(parseInt(r))) {
               return {
                 ...o,
-                [r]: score
-              }
+                [r]: score,
+              };
             } else {
               score = parseInt(r);
               return 0;
             }
-          },
-          {}));
-      });
+          }, {}),
+        );
+      },
+    );
   }
 }

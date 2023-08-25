@@ -71,4 +71,15 @@ export class LinkController {
       };
     });
   }
+
+  @Get('checkout/links/:code')
+  async link(
+    @Param('code')
+    code: string,
+  ) {
+    return this.linkService.findOne({
+      code,
+      relations: ['user', 'products'],
+    });
+  }
 }

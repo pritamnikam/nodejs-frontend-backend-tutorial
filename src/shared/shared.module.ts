@@ -21,6 +21,6 @@ import { RedisService } from './redis.service';
     }),
   ],
   providers: [RedisService],
-  exports: [JwtModule, CacheModule],
+  exports: [JwtModule, CacheModule, RedisService],
 })
 export class SharedModule {}
