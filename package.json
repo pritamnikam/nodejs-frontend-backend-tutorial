@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:ambassadors": "node src/commands/ambassdor.seeder.ts",
     "seed:products": "node src/commands/product.seeder.ts",
-    "seed:orders": "node src/commands/order.seeder.ts"
+    "seed:orders": "node src/commands/order.seeder.ts",
+    "rankings": "node src/commands/rankings.ts"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.1.0",
@@ -32,6 +33,7 @@
     "@nestjs/typeorm": "^10.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/faker": "^6.6.9",
+    "@types/redis": "^4.0.11",
     "bcryptjs": "^2.4.3",
     "cache-manager": "^5.2.3",
     "cache-manager-redis-store": "^3.0.1",

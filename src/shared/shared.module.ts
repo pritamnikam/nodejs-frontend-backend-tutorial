@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-yet';
+import { RedisService } from './redis.service';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { redisStore } from 'cache-manager-redis-yet';
       },
     }),
   ],
+  providers: [RedisService],
   exports: [JwtModule, CacheModule],
 })
 export class SharedModule {}
