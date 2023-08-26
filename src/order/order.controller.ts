@@ -19,6 +19,7 @@ import { OrderItem } from './order-item';
 import { Product } from 'src/product/product';
 import { OrderItemService } from './order-item.service';
 import { DataSource } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class OrderController {
@@ -28,6 +29,7 @@ export class OrderController {
     private readonly productService: ProductService,
     private readonly orderItemService: OrderItemService,
     private readonly dataSource: DataSource,
+    private readonly configService: ConfigService
   ) {}
 
   @UseGuards(AuthGuard)
@@ -73,6 +75,9 @@ export class OrderController {
 
       // const o = await this.orderService.save(order);
       const o = await queryRunner.manager.save(order);
+
+      // const line_items: any[];
+
       for (const p of body.products) {
         const product: Product = await this.productService.findOne({
           id: p.product_id,
@@ -86,9 +91,27 @@ export class OrderController {
         orderItem.admin_revenue = 0.9 * product.price * p.quantity; // 90% revenue
         // await this.orderItemService.save(orderItem);
         await queryRunner.manager.save(orderItem);
+
+        // line_items.push({
+        //   name: product.title,
+        //   description: product.description,
+        //   images: [ product.image ],
+        //   amount: 100 * product.price,
+        //   quantity: p.quantity
+        // });
       }
 
+      // const source = await this.stripeClient.checkout.sessions.create({
+      //   payment_mehod_types: ['card']
+      //   line_items,
+      //   success_url: `${this.configService.get("CHECKOUT_URL")}/success?source={CHECKOUT_SESSION_ID}`,
+      //   cancel_url: `${this.configService.get("CHECKOUT_URL")}/error`
+      // });
+      // o.transaction_id = source['id'];
+      // await queryRunner.manager.save(o);
+      await queryRunner.commitTransaction();
       return o;
+
     } catch (err) {
       // since we have errors lets rollback the changes we made
       await queryRunner.rollbackTransaction();

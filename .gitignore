@@ -5,6 +5,8 @@
 # generated
 /.dbdata
 
+.env
+
 # Logs
 logs
 *.log
